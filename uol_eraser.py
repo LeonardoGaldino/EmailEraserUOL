@@ -64,7 +64,7 @@ def erase_inbox_uol():
 			break
 
 		num_emails = int(emails_json.get('results')[0].get('result').get('properties').get('totalMessages'))
-		print(str(num_emails) + ' emails left')
+		print(str(num_emails) + ' e-mails left')
 
 		if(num_emails == 0):
 			print 'No more e-mails, ending script.'

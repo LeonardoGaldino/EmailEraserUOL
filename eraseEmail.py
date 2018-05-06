@@ -21,47 +21,64 @@ cookie_dict = {
 
 req_session = requests.Session()
 
-while True:
+def fetch_next_100_emails():
 	try:
 		emails_req = req_session.get(API_URL, cookies=cookie_dict, json=json_get_100_obj)
 		emails_json = json.loads(emails_req.content)
 	except Exception as e:
-		print 'Exception on get emails request:'
-		print e
-		break
+		raise e
 
 	if emails_json.get('message') != 'ok':
-		raise ValueError('Emails request not successful!')
+		raise ValueError('Fetch e-mails request not successful!')
 
-	num_emails = int(emails_json.get('results')[0].get('result').get('properties').get('totalMessages'))
-	print(str(num_emails) + ' emails left')
+	return emails_json
 
-	if(num_emails == 0):
-		print 'No more emails, ending script.'
-		break
-
-	emails = emails_json.get('results')[0].get('result').get('items')
-	ids = [email.get('id') for email in emails]
-
+def erase_emails(email_id_list):
 	json_erase_100_obj = {
 		'commands': [{
 			'command_name': 'mail:delete',
 			'command_id': 'ali',
 			'params': {
-				'folders': [{'name': 'INBOX', 'uids': ids}],
+				'folders': [{'name': 'INBOX', 'uids': email_id_list}],
 				'accountId': '0',
 			},
 			'accountId': '0'
 		}]
 	}
-
 	try:
 		erase_req = req_session.post(API_URL, cookies=cookie_dict, json=json_erase_100_obj)
 		erase_json = json.loads(erase_req.content)
 	except Exception as e:
-		print 'Exception on erase emails request:'
-		print e
-		break
+		raise e
+
 	if erase_json.get('message') != 'ok':
-		raise ValueError('Erase emails request not successful!')
-	print(str(num_emails) + ' erased successfully')
+		raise ValueError('Erase e-mails request not successful!')
+
+def erase_inbox_uol():
+	while True:
+		try:
+			emails_json = fetch_next_100_emails()
+		except Exception as e:
+			print 'Error occurred when fetching next emails:'
+			print e
+			break
+
+		num_emails = int(emails_json.get('results')[0].get('result').get('properties').get('totalMessages'))
+		print(str(num_emails) + ' emails left')
+
+		if(num_emails == 0):
+			print 'No more emails, ending script.'
+			break
+
+		emails = emails_json.get('results')[0].get('result').get('items')
+		ids = [email.get('id') for email in emails]
+		try:
+			erase_emails(ids)
+			print(str(num_emails) + ' erased successfully')
+		except Exception as e:
+			print 'Error occurred when deleting next emails:'
+			print e
+			break
+
+if __name__ == '__main__':
+	erase_inbox_uol()

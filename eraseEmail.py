@@ -59,7 +59,7 @@ def erase_inbox_uol():
 		try:
 			emails_json = fetch_next_100_emails()
 		except Exception as e:
-			print 'Error occurred when fetching next emails:'
+			print 'Error occurred when fetching next e-mails:'
 			print e
 			break
 
@@ -67,7 +67,7 @@ def erase_inbox_uol():
 		print(str(num_emails) + ' emails left')
 
 		if(num_emails == 0):
-			print 'No more emails, ending script.'
+			print 'No more e-mails, ending script.'
 			break
 
 		emails = emails_json.get('results')[0].get('result').get('items')
@@ -76,7 +76,7 @@ def erase_inbox_uol():
 			erase_emails(ids)
 			print(str(num_emails) + ' erased successfully')
 		except Exception as e:
-			print 'Error occurred when deleting next emails:'
+			print 'Error occurred when deleting next e-mails:'
 			print e
 			break
 
